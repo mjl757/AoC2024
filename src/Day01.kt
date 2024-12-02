@@ -1,21 +1,39 @@
+import kotlin.math.abs
+
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
+    fun part1(input1: List<Int>, input2: List<Int>): Int {
+        val sort1 = input1.sorted()
+        val sort2 = input2.sorted()
+        var total = 0
+        sort1.forEachIndexed { index, item ->
+            total += abs(item - sort2[index])
+        }
+        return total
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(input1: List<Int>, input2: List<Int>): Int {
+        var total = 0
+        input1.forEachIndexed { index, item ->
+            total += input2.filter { it == item }.count() * item
+        }
+
+        return total
     }
 
-    // Test if implementation meets criteria from the description, like:
-    check(part1(listOf("test_input")) == 1)
+    fun String.mapToPair() : Pair<Int, Int> {
+        val numbers = split("   ")
+        return Pair(numbers[0].toInt(), numbers[1].toInt())
+    }
 
-    // Or read a large test input from the `src/Day01_test.txt` file:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
-
+    val input1 = mutableListOf<Int>()
+    val input2 = mutableListOf<Int>()
     // Read the input from the `src/Day01.txt` file.
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+    readInput("Day01").forEach {
+        val pair = it.mapToPair()
+        input1.add(pair.first)
+        input2.add(pair.second)
+
+    }
+    part1(input1, input2).println()
+    part2(input1, input2).println()
 }
