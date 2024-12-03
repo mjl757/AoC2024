@@ -27,10 +27,8 @@ fun getLineTotal(input: String) : Int {
     var total = 0
 
     expressions.forEach { expression ->
-        var expressionTotal = 0
         val numbers = numberRegex.findAll(expression).map { it.value.toInt() }.toList()
-        expressionTotal = numbers[0] * numbers[1]
-        total += expressionTotal
+        total += numbers[0] * numbers[1]
     }
 
     return total
@@ -46,8 +44,7 @@ fun getEnabledTotal(input: String) : Int {
     val enabledRanges = buildEnableRanges(doResults, doNotResults, input.lastIndex)
     var total = 0
     enabledRanges.forEach { range ->
-        val rangeTotal = getLineTotal(input.substring(range))
-        total += rangeTotal
+        total += getLineTotal(input.substring(range))
     }
 
     return total
@@ -77,12 +74,3 @@ fun buildEnableRanges(doIndices: Sequence<Int>, dontIndices: Sequence<Int>, last
 
     }
 }
-
-
-/**
- * 184511516
- *
- * 91217027
- *
- * New: 95085090
- */
