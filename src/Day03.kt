@@ -8,11 +8,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        var total = 0
-        input.forEach {
-            total += getEnabledTotal(it)
-        }
-        return total
+        return getEnabledTotal(input.joinToString())
     }
 
     // Read the input from the `src/Day01.txt` file.
@@ -35,10 +31,8 @@ fun getLineTotal(input: String) : Int {
         val numbers = numberRegex.findAll(expression).map { it.value.toInt() }.toList()
         expressionTotal = numbers[0] * numbers[1]
         total += expressionTotal
-      //  println("Expression $expression total: $expressionTotal")
     }
 
-    //println("Line Total: $total")
     return total
 }
 
@@ -47,21 +41,14 @@ fun getEnabledTotal(input: String) : Int {
     val dontRegex = Regex("(don't\\(\\))")
 
     val doNotResults = dontRegex.findAll(input).map { it.range.last }
-    val firstDont = doNotResults.first()
-    val doResults = doRegex.findAll(input).map { it.range.last }.filter { it > firstDont }
-
-    doResults.forEach { println("Do: $it") }
-    doNotResults.forEach { println("Don't: $it") }
+    val doResults = doRegex.findAll(input).map { it.range.last }
 
     val enabledRanges = buildEnableRanges(doResults, doNotResults, input.lastIndex)
     var total = 0
     enabledRanges.forEach { range ->
         val rangeTotal = getLineTotal(input.substring(range))
         total += rangeTotal
-       println("EnabledRange $range Total: $rangeTotal")
     }
-    println("Enabled Line Total: $total")
-    println("Whole Line Total: ${getLineTotal(input)}")
 
     return total
 }
