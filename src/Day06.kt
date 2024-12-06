@@ -1,10 +1,15 @@
 import Day06.Part1
 import Day06.Part2
+import java.time.LocalTime
 
 fun main() {
     val input = readInput("Day06")
     println("Part 1: ${Part1.run(input)}")
+    val startTime = LocalTime.now()
     println("Part 2: ${Part2.run(input)}")
+    val endTime = LocalTime.now()
+    val difference = endTime.second - startTime.second
+    println("Time to run part 2: $difference")
 }
 
 private object Day06 {
@@ -77,61 +82,32 @@ private object Day06 {
     object Part2 {
         fun run(input: List<String>): Int {
             val board = input.createGrid()
-            val obstacles = getRelevantObstaclePoints(board)
-            return findPotentialObstaclesSpaces(board, obstacles)
-        }
-
-
-        fun findPotentialObstaclesSpaces(
-            board: Board,
-            existingObstacles: List<Pair<Point, Direction>>
-        ): Int {
+            val guardPath = Part1.predictGuardsMovement(board)
+            val boards = getPotentialBoards(guardPath, board)
             var sum = 0
-            var updatedBoard = board
-            var nextPosition: GridItem? = board.guard
-            while (nextPosition != null) {
-                nextPosition = Part1.checkGuardsNextPosition(updatedBoard)
-                when (nextPosition) {
-                    is GridItem.FreeSpace -> {
-                        if (shouldPlaceObstacle(updatedBoard, existingObstacles)) {
-                            sum++
-                            println("Placing Obstacle at ${getNextPoint(updatedBoard.guard)}")
-                        }
-                        updatedBoard = Part1.moveGuard(updatedBoard)
-                    }
-
-                    GridItem.Obstacle -> {
-                        updatedBoard = Part1.rotateGuard(updatedBoard)
-                    }
-
-                    else -> { /*no op*/
-                    }
+            boards.forEach {
+                if (doesBoardLoop(it)) {
+                    sum++
                 }
-               // updatedBoard.println()
             }
             return sum
         }
 
-        fun shouldPlaceObstacle(
-            board: Board,
-            existingObstacles: List<Pair<Point, Direction>>
-        ): Boolean {
-            val newDirection = board.guard.direction.turn()
-            var newGuard = board.guard.copy(direction = newDirection)
-            var nextPoint = getNextPoint(newGuard)
-            while (nextPoint.isInBounds(board.area.first().lastIndex, board.area.lastIndex)) {
-                val currentPosition = board.area[newGuard.point.y][newGuard.point.x]
-                if (existingObstacles.contains(nextPoint to newDirection) &&
-                    currentPosition is GridItem.FreeSpace && currentPosition.hasBeenVisited) {
-                    return true
+        fun getPotentialBoards(pathedBoard: Board, board: Board): List<Board> {
+            return buildList {
+                pathedBoard.area.forEachIndexed { y, row ->
+                    row.forEachIndexed { x, item ->
+                        if (item is GridItem.FreeSpace && item.hasBeenVisited || item is GridItem.Guard) {
+                            val mutableArea = board.area.map { it.toMutableList() }.toMutableList()
+                            mutableArea[y][x] = GridItem.Obstacle
+                            add(board.copy(area = mutableArea))
+                        }
+                    }
                 }
-                newGuard = newGuard.copy(point = nextPoint)
-                nextPoint = getNextPoint(newGuard)
             }
-            return false
         }
 
-        fun getRelevantObstaclePoints(board: Board): List<Pair<Point, Direction>> {
+        fun doesBoardLoop(board: Board): Boolean {
             var updatedBoard = board
             var nextPosition: GridItem? = board.guard
             val obstacleMap: MutableList<Pair<Point, Direction>> = mutableListOf()
@@ -144,18 +120,21 @@ private object Day06 {
 
                     GridItem.Obstacle -> {
                         val nextPoint = getNextPoint(updatedBoard.guard)
-                        obstacleMap.add(nextPoint to updatedBoard.guard.direction)
+                        val encounteredObstacle = nextPoint to updatedBoard.guard.direction
+                        if (obstacleMap.contains(encounteredObstacle)) {
+                            return true
+                        }
+                        obstacleMap.add(encounteredObstacle)
                         updatedBoard = Part1.rotateGuard(updatedBoard)
                     }
 
                     else -> { /*no op*/
                     }
                 }
-
+                // updatedBoard.println()
             }
-            return obstacleMap
+            return false
         }
-
     }
 
     fun getNextPoint(guard: GridItem.Guard): Point {
