@@ -1,8 +1,14 @@
 import Day06.Part1
 import Day06.Part2
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.time.LocalTime
 
-fun main() {
+fun main() = runBlocking {
     val input = readInput("Day06")
     println("Part 1: ${Part1.run(input)}")
     val startTime = LocalTime.now()
@@ -80,18 +86,25 @@ private object Day06 {
      * 646 is to low
      */
     object Part2 {
-        fun run(input: List<String>): Int {
+        suspend fun run(input: List<String>): Int = withContext(Dispatchers.IO) {
             val board = input.createGrid()
             val guardPath = Part1.predictGuardsMovement(board)
             val boards = getPotentialBoards(guardPath, board)
-            var sum = 0
+            val deferred: MutableList<Deferred<Int>> = mutableListOf()
             boards.forEach {
-                if (doesBoardLoop(it)) {
-                    sum++
-                }
+                deferred.add(
+                    async {
+                        if (doesBoardLoop(it)) {
+                            1
+                        } else {
+                            0
+                        }
+                    }
+                )
             }
-            return sum
+            deferred.awaitAll().sum()
         }
+
 
         fun getPotentialBoards(pathedBoard: Board, board: Board): List<Board> {
             return buildList {
