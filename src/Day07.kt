@@ -10,10 +10,18 @@ fun main() {
 
 private object Day07 {
     object Part1 {
-        fun run(input: List<Equation>): Long = input.mapNotNull { testEquation(it) }.sum()
+        fun run(input: List<Equation>): Long = input.mapNotNull {
+            testEquation(
+                it,
+                listOf(Operator.SUM, Operator.MUL)
+            )
+        }.sum()
 
-        fun testEquation(equation: Equation): Long? {
-            val operatorsList = generateOperators(equation.components.size - 1)
+        fun testEquation(equation: Equation, listOfPossibleOperators: List<Operator>): Long? {
+            val operatorsList = generateOperators(
+                equation.components.size - 1,
+                listOfPossibleOperators
+            )
             operatorsList.forEach { operators ->
                 var total = 0L
                 equation.components.forEachIndexed { index, component ->
@@ -23,48 +31,60 @@ private object Day07 {
                         total = operators[index - 1].compute(total, component)
                     }
                     if (total > equation.answer) return@forEachIndexed
-                    if (total == equation.answer) {
-                        return equation.answer
-                    }
+                }
+                if (total == equation.answer) {
+                    return equation.answer
                 }
             }
             return null
         }
 
-        fun generateOperators(numberOfOperators: Int): Set<List<Operator>> {
-            val list = createOperators(numberOfOperators, listOf(), Operator.SUM, setOf())
-            return createOperators(numberOfOperators, listOf(), Operator.MUL, list)
+        fun generateOperators(
+            numberOfOperators: Int,
+            listOfPossibleOperators: List<Operator>
+        ): List<List<Operator>> = buildList {
+            listOfPossibleOperators.forEach {
+                addAll(createOperators(numberOfOperators, listOf(), it, listOfPossibleOperators))
+            }
         }
 
         fun createOperators(
             numberOfOperators: Int,
             currentList: List<Operator>,
             value: Operator,
-            listOfList: Set<List<Operator>>
-        ): Set<List<Operator>> {
-            if (currentList.size == numberOfOperators) {
-                return listOfList.plus(element = currentList)
+            listOfPossibleOperators: List<Operator>
+        ): List<List<Operator>> {
+            val newList = currentList.toMutableList().apply {
+                add(value)
+            }
+            if (newList.size == numberOfOperators) {
+                return listOf(newList)
             }
 
-            val sumList = createOperators(
-                numberOfOperators,
-                currentList.plus(value),
-                Operator.SUM,
-                listOfList
-            )
-            return createOperators(
-                numberOfOperators,
-                currentList.plus(value),
-                Operator.MUL,
-                sumList
-            )
+            val sumList = buildList {
+                listOfPossibleOperators.forEach {
+                    addAll(
+                        createOperators(
+                            numberOfOperators,
+                            newList,
+                            it,
+                            listOfPossibleOperators
+                        )
+                    )
+                }
+            }
+
+            return sumList
         }
     }
 
     object Part2 {
-        fun run(input: List<Equation>) {
-
-        }
+        fun run(input: List<Equation>): Long = input.mapNotNull {
+            Part1.testEquation(
+                it,
+                Operator.entries
+            )
+        }.sum()
     }
 
     data class Equation(
@@ -74,12 +94,14 @@ private object Day07 {
 
     enum class Operator {
         SUM,
-        MUL;
+        MUL,
+        CAT;
 
         fun compute(first: Long, second: Long): Long {
             return when (this) {
                 SUM -> first + second
                 MUL -> first.times(second)
+                CAT -> (first.toString() + second.toString()).toLong()
             }
         }
     }
