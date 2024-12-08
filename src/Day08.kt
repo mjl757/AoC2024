@@ -23,7 +23,10 @@ private object Day08 {
             return antinodeSet.size
         }
 
-        fun getAntinodeCount(grid: Grid2D<Char>, antennaLocations: Set<Grid2D.Location>): List<Grid2D.Location> {
+        fun getAntinodeCount(
+            grid: Grid2D<Char>,
+            antennaLocations: Set<Grid2D.Location>
+        ): List<Grid2D.Location> {
             val antinodeLocations: MutableSet<Grid2D.Location> = mutableSetOf()
             antennaLocations.forEachIndexed { i, location1 ->
                 val subSet = antennaLocations.filterIndexed { index, _ ->
@@ -64,12 +67,78 @@ private object Day08 {
         }
     }
 
+    //717 to long
     object Part2 {
-        fun run(grid: Grid2D<Char>) {
+        fun run(grid: Grid2D<Char>): Int {
+            val antennas = Part1.getAntennaSet(grid)
+            val antinodeSet: MutableSet<Grid2D.Location> = mutableSetOf()
+            antennas.entries.forEach { entry ->
+                antinodeSet.addAll(getAntinodeCount(grid, entry.value))
+            }
+            return antinodeSet.size
+        }
 
+        fun getAntinodeCount(
+            grid: Grid2D<Char>,
+            antennaLocations: Set<Grid2D.Location>
+        ): List<Grid2D.Location> {
+            val antinodeLocations: MutableSet<Grid2D.Location> = mutableSetOf()
+            antennaLocations.forEachIndexed { i, location1 ->
+                val subSet = antennaLocations.filterIndexed { index, _ ->
+                    index > i
+                }
+                subSet.forEachIndexed { j, location2 ->
+                    val differenceRow = location1.row - location2.row
+                    val differenceCol = location1.col - location2.col
+                    antinodeLocations.addAll(
+                        getLocations(
+                            startLocation = location1,
+                            rowDifference = differenceRow,
+                            colDifference = differenceCol,
+                            goForward = true,
+                            grid = grid
+                        )
+                    )
+                    antinodeLocations.addAll(
+                        getLocations(
+                            startLocation = location2,
+                            rowDifference = differenceRow,
+                            colDifference = differenceCol,
+                            goForward = false,
+                            grid = grid
+                        )
+                    )
+                }
+            }
+            antinodeLocations.addAll(antennaLocations)
+            val filteredLocations = antinodeLocations.filter { grid.isInBounds(it) }
+            return filteredLocations
+        }
+
+        fun getLocations(
+            startLocation: Grid2D.Location,
+            rowDifference: Int,
+            colDifference: Int,
+            goForward: Boolean,
+            grid: Grid2D<Char>
+        ): List<Grid2D.Location> = buildList {
+            var currentLocation = startLocation
+            while (grid.isInBounds(currentLocation)) {
+                currentLocation = if (goForward) {
+                    Grid2D.Location(
+                        row = currentLocation.row + rowDifference,
+                        col = currentLocation.col + colDifference
+                    )
+                } else {
+                    Grid2D.Location(
+                        row = currentLocation.row - rowDifference,
+                        col = currentLocation.col - colDifference
+                    )
+                }
+                add(currentLocation)
+            }
         }
     }
-
 }
 
 
