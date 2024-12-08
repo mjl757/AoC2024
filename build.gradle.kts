@@ -10,15 +10,10 @@ sourceSets {
 
 repositories {
     mavenCentral()
-    maven("https://jitpick.io")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-}
-
-tasks {
-    wrapper {
-        gradleVersion = "8.11.1"
-    }
+    implementation("com.github.jsoberg:Kotlin-AoC-Utilities:2024.3")
 }

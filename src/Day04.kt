@@ -1,4 +1,4 @@
-typealias Grid = List<List<Char>>
+typealias GridD4 = List<List<Char>>
 
 fun main() {
     val input = readInput("Day04").createGrid()
@@ -6,7 +6,7 @@ fun main() {
     println("Part 2: ${Day04.Part2.run(input)}")
 }
 
-fun List<String>.createGrid(): Grid {
+fun List<String>.createGrid(): GridD4 {
     val stringList = this
     return buildList {
         stringList.forEach { row ->
@@ -17,11 +17,11 @@ fun List<String>.createGrid(): Grid {
 
 private object Day04 {
     object Part1 {
-        fun run(input: Grid): Int {
+        fun run(input: GridD4): Int {
             return getXMasCount(input)
         }
 
-        private fun getXMasCount(grid: Grid): Int {
+        private fun getXMasCount(grid: GridD4): Int {
             var total = 0
             grid.forEachIndexed { xIndex, row ->
                 row.forEachIndexed { yIndex, value ->
@@ -33,7 +33,7 @@ private object Day04 {
             return total
         }
 
-        private fun checkPoint(xIndex: Int, yIndex: Int, input: Grid): Int {
+        private fun checkPoint(xIndex: Int, yIndex: Int, input: GridD4): Int {
             var total = 0
             for (direction in Direction.entries) {
                 if (direction.isXMas(xIndex, yIndex, input)) {
@@ -43,7 +43,7 @@ private object Day04 {
             return total
         }
 
-        fun Direction.isXMas(xIndex: Int, yIndex: Int, input: Grid): Boolean {
+        fun Direction.isXMas(xIndex: Int, yIndex: Int, input: GridD4): Boolean {
             val mPair: Pair<Int, Int>
             val aPair: Pair<Int, Int>
             val sPair: Pair<Int, Int>
@@ -100,11 +100,11 @@ private object Day04 {
     }
 
     object Part2 {
-        fun run(input: Grid): Int {
+        fun run(input: GridD4): Int {
             return getXMasCount(input)
         }
 
-        private fun getXMasCount(grid: Grid): Int {
+        private fun getXMasCount(grid: GridD4): Int {
             var total = 0
             grid.forEachIndexed { xIndex, row ->
                 row.forEachIndexed { yIndex, value ->
@@ -120,7 +120,7 @@ private object Day04 {
             return total
         }
 
-        private fun checkPoint(xIndex: Int, yIndex: Int, input: Grid): Boolean {
+        private fun checkPoint(xIndex: Int, yIndex: Int, input: GridD4): Boolean {
             val ul = input[xIndex-1][yIndex-1]
             val ur = input[xIndex+1][yIndex-1]
             val dl = input[xIndex-1][yIndex+1]
