@@ -28,13 +28,7 @@ private object Day11 {
                         length % 2 == 0 -> {
                             val half = length / 2
                             add(stone.substring(0, half))
-                            val secondHalf = stone.substring(half, stone.length)
-                            val firstNonZero = secondHalf.indexOfFirst { it != '0' }
-                            if (firstNonZero == -1) {
-                                add("0")
-                            } else {
-                                add(secondHalf.substring(firstNonZero, secondHalf.length))
-                            }
+                            add(stone.substring(half, stone.length).toLong().toString())
                         }
                         else -> {
                             add((stone.toLong()*2024).toString())
