@@ -18,9 +18,9 @@ private object Day10 {
     object Part1 {
         fun run(input: Grid2D<Int>) : Int {
             var total = 0
-            input.traverse {
-                if (input[it] == 0) {
-                    val score = findScore(it, input)
+            input.traverse { location ->
+                if (input[location] == 0) {
+                    val score = findScore(location, input)
                     total += score
                 }
             }
@@ -60,9 +60,9 @@ private object Day10 {
     object Part2 {
         fun run(input: Grid2D<Int>) : Int {
             var total = 0
-            input.traverse {
-                if (input[it] == 0) {
-                    val score = findScore(it, input)
+            input.traverse { location ->
+                if (input[location] == 0) {
+                    val score = findScore(location, input)
                     total += score
                 }
             }
